@@ -1,0 +1,4 @@
+config:
+  netNinja.API.infra:projectName: users
+  netNinja.API.infra:env: dev
+  netNinja.API.infra:location: westeurope

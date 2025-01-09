@@ -1,0 +1,5 @@
+config:
+  azure-native:location: westeurope
+  azure-native:tenantId: 4d13e0f3-a99e-4062-a125-77677db96130
+  azure-native:subscriptionId: d65a3138-5e37-4af7-9663-8a8aeec6634a
+  netNinja.API.infra:env: pre
