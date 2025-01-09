@@ -25,11 +25,11 @@ pulumi stack init users-pre
 pulumi stack init users-pro
 ```
 
-# create stacks for project "products":
+# create stacks for project "crsales":
 ```
-pulumi stack init products-dev
-pulumi stack init products-pre
-pulumi stack init products-pro
+pulumi stack init crsales-dev
+pulumi stack init crsales-pre
+pulumi stack init crsales-pro
 ```
 
 # select a stack
@@ -44,6 +44,13 @@ pulumi stack select users-pro
 pulumi config set projectName users --stack users-dev
 pulumi config set env dev --stack users-dev
 pulumi config set location westeurope --stack users-dev
+```
+
+# set up vars for users-dev
+```
+pulumi config set projectName crsales --stack crsales-dev
+pulumi config set env dev --stack crsales-dev
+pulumi config set location westeurope --stack crsales-dev
 ```
 
 # set up vars for users-pre

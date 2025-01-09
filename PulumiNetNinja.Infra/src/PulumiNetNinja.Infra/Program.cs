@@ -4,6 +4,7 @@ using System.Text.Json;
 using netNinja.API.infra.Configs;
 using netNinja.API.infra.Resources;
 using Pulumi;
+using Pulumi.AzureNative.DBforPostgreSQL.Outputs;
 using Pulumi.AzureNative.Insights;
 using Pulumi.AzureNative.OperationalInsights;
 using Pulumi.AzureNative.OperationalInsights.Inputs;
@@ -29,8 +30,8 @@ return await Pulumi.Deployment.RunAsync(() =>
 
     // 💾 storage account
     var storageAccount = new StorageAccountResource(
-        storageAccountConfig,
-        accountName: $"{projectName}-stg-{environment}",
+        /*storageAccountConfig,*/
+        accountName: $"{projectName}stg{environment}",
         resourceGroup: resourceGroup,
         environment: environment
     );
@@ -40,11 +41,14 @@ return await Pulumi.Deployment.RunAsync(() =>
         sqlServerConfig: sqlServerConfig,
         shareConfig: shareConfig,
         resourceGroup: resourceGroup,
-        environment: environment
+        environment: environment,
+        serverName : $"{projectName}-sql-{environment}",
+        projectName: projectName
     );
     
     // 📈 telemetry
-    var logAnalyticsWorkspace = new Workspace($"{appInsightsConfig.AppInsightsName}-{environment}", 
+    /*-insights*/
+    var logAnalyticsWorkspace = new Workspace($"{projectName}-insights-{environment}", 
         new WorkspaceArgs
         {
             ResourceGroupName = resourceGroup.ResourceGroupData.Name,
@@ -53,7 +57,7 @@ return await Pulumi.Deployment.RunAsync(() =>
             {
                 Name = "PerGB2018"
             },
-            WorkspaceName = $"{appInsightsConfig.AppInsightsName}-{environment}",
+            WorkspaceName = $"{projectName}-insights-{environment}",
             RetentionInDays = 30
         },
         new CustomResourceOptions
@@ -64,9 +68,9 @@ return await Pulumi.Deployment.RunAsync(() =>
     UpdateAppSettingsWithWorkspaceResourceId(logAnalyticsWorkspace.Id);
 
     // 📈 Crear el recurso Application Insights
-    var appInsights = new Component(appInsightsConfig.AppInsightsName, new ComponentArgs
+    var appInsights = new Component($"{projectName}-insights-{environment}", new ComponentArgs
     {
-        ResourceName = $"{appInsightsConfig.AppInsightsName}-{environment}",
+        ResourceName = $"{projectName}-insights-{environment}",
         ResourceGroupName = resourceGroup.ResourceGroupData.Name,
         Location = location,
         ApplicationType = "web",
@@ -87,6 +91,7 @@ return await Pulumi.Deployment.RunAsync(() =>
 
     // 📄 create the web app
     var webAppResource = new WebAppResource(
+        appName: $"{projectName}-{environment}",
         webAppConfig: webAppConfig,
         shareConfig: shareConfig,
         environment: environment,

@@ -12,10 +12,9 @@ namespace netNinja.API.infra.Resources
     {
         public WebApp WebAppData { get; }
 
-        public WebAppResource(WebAppConfig webAppConfig, ShareConfig shareConfig, string environment, ResourceGroup resourceGroup, Dictionary<string, Output<string>>? appSettings = null)
+        public WebAppResource(string appName, WebAppConfig webAppConfig, ShareConfig shareConfig, string environment, ResourceGroup resourceGroup, Dictionary<string, Output<string>>? appSettings = null)
         {
-            var appServicePlan = new AppServicePlan(
-                $"{webAppConfig.AppServicePlanName}-{environment}",
+            var appServicePlan = new AppServicePlan($"{appName}-serviceplan",
                 new AppServicePlanArgs
                 {
                     Kind = "App", 
@@ -26,16 +25,16 @@ namespace netNinja.API.infra.Resources
                         Name = webAppConfig.Sku.Size,
                         Tier = webAppConfig.Sku.Tier
                     },
-                    Name =  $"{webAppConfig.AppServicePlanName}-{environment}"
+                    Name =  $"{appName}-serviceplan"/*$"{webAppConfig.AppServicePlanName}-{environment}"*/
                 }
             );
 
-            WebAppData = new WebApp($"{webAppConfig.AppName}-{environment}",
+            WebAppData = new WebApp(appName/*$"{webAppConfig.AppName}-{environment}"*/,
                 new WebAppArgs
                 {
                     Location = shareConfig.Location,
-                    Name = $"{webAppConfig.AppName}-{environment}",
-                    ResourceGroupName = $"{shareConfig.ResourceGroupName}-{environment}",
+                    Name = appName/*$"{webAppConfig.AppName}-{environment}"*/,
+                    ResourceGroupName = resourceGroup.ResourceGroupData.Name,
                     ServerFarmId = appServicePlan.Id,
                     SiteConfig = new SiteConfigArgs
                     {

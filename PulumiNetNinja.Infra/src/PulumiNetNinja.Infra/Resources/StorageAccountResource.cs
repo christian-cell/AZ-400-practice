@@ -12,7 +12,7 @@ namespace netNinja.API.infra.Resources
         public StorageAccount StorageAccount { get; }
         public Output<string> PrimaryStorageKey { get; }
 
-        public StorageAccountResource(StorageAccountConfig config ,string accountName, ResourceGroup resourceGroup, string environment)
+        public StorageAccountResource(/*StorageAccountConfig config*/ string accountName, ResourceGroup resourceGroup, string environment)
         {
             Console.WriteLine($"Creating Storage Account {accountName}-{environment}");
             Console.WriteLine($"resource group name {resourceGroup.ResourceGroupData.Name}-{environment}");
@@ -28,7 +28,7 @@ namespace netNinja.API.infra.Resources
                     Name = SkuName.Standard_LRS
                 },
                 Kind = Kind.StorageV2,
-                AccountName = $"{config.StorageAccountName}{environment}" //$"{config.StorageAccountName}-{environment}" name not allowed
+                AccountName = accountName/*$"{config.StorageAccountName}{environment}"*/ //$"{config.StorageAccountName}-{environment}" name not allowed
             });
 
             // Obtener las claves del Storage Account
