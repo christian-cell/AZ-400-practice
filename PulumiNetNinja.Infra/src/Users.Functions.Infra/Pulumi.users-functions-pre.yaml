@@ -1,0 +1,4 @@
+config:
+  Users.Functions.Infra:projectName: usersfpre
+  Users.Functions.Infra:env: pre
+  Users.Functions.Infra:location: northeurope
