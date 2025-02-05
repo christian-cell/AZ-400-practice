@@ -4,7 +4,7 @@ namespace Users.API.Controllers
 {
     public class Base : ControllerBase
     {
-    
+       /*extend from here*/
     }
 };
 
