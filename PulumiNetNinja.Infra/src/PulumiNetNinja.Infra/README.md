@@ -3,8 +3,11 @@
 pulumi refresh
 ```
 
+
 # Set your subscriptionId
 ```
+az login
+
 az account set --subscription "YOUR_SUBSCRIPTION_NAME_OR_ID"
 ```
 
@@ -35,6 +38,7 @@ pulumi stack init crsales-pro
 # select a stack
 ```
 pulumi stack select users-dev
+pulumi stack select users-dev
 pulumi stack select users-pre
 pulumi stack select users-pro
 ```
@@ -43,21 +47,21 @@ pulumi stack select users-pro
 ```
 pulumi config set projectName users --stack users-dev
 pulumi config set env dev --stack users-dev
-pulumi config set location westeurope --stack users-dev
+pulumi config set location northeurope --stack users-dev
 ```
 
 # set up vars for users-dev
 ```
 pulumi config set projectName crsales --stack crsales-dev
 pulumi config set env dev --stack crsales-dev
-pulumi config set location westeurope --stack crsales-dev
+pulumi config set location northeurope --stack crsales-dev
 ```
 
 # set up vars for users-pre
 ```
 pulumi config set projectName users --stack users-pre
 pulumi config set env pre --stack users-pre
-pulumi config set location westeurope --stack users-pre
+pulumi config set location northeurope --stack users-pre
 ```
 
 # set up vars for users-pro

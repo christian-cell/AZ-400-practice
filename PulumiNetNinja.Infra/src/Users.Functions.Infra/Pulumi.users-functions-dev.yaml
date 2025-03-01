@@ -2,3 +2,4 @@ config:
   Users.Functions.Infra:projectName: usersf
   Users.Functions.Infra:env: dev
   Users.Functions.Infra:location: northeurope
+  azure-native:subscriptionId: 416268c2-d33e-4407-9e28-6db4446ae43f

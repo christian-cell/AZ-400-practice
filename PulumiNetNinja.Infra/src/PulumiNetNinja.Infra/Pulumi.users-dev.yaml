@@ -1,4 +1,5 @@
 config:
   netNinja.API.infra:projectName: users
   netNinja.API.infra:env: dev
-  netNinja.API.infra:location: westeurope
+  netNinja.API.infra:location: northeurope
+  azure-native:subscriptionId: d65a3138-5e37-4af7-9663-8a8aeec6634a

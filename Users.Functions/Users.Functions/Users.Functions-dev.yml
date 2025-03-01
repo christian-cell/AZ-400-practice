@@ -1,0 +1,69 @@
+trigger:
+  branches:
+    include:
+      - development
+
+pool:
+  name: Self-hosted
+  demands:
+    - agent.name -equals INVESP00011
+  maxParallelism: 1
+
+steps:
+  # Confirmación inicial de que el agente está funcionando correctamente
+  - task: PowerShell@2
+    displayName: '✅ Validar agente'
+    inputs:
+      targetType: 'inline'
+      script: |
+        Write-Host "El agente está ejecutando la tarea correctamente"
+
+  # Configurar .NET Core SDK
+  - task: UseDotNet@2
+    displayName: ⚙️ Configurar .NET SDK
+    inputs:
+      packageType: sdk
+      version: 8.0.107
+      #version: 7.0.100
+
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+
+  # Restore function
+  - task: DotNetCoreCLI@2
+    displayName: '⬇️ dotnet restore'
+    inputs:
+      command: 'restore'
+      projects: '**/Users.Functions/Users.Functions/Users.Functions.csproj'
+
+  - task: DotNetCoreCLI@2
+    displayName: '👷 dotnet build'
+    inputs:
+      command: 'build'
+      projects: '**/Users.Functions/Users.Functions/Users.Functions.csproj' # set the appropriate value
+      arguments: '--output $(System.DefaultWorkingDirectory)/output --configuration Release --verbosity diagnostic'
+  
+  # Publicar la aplicación
+  - task: DotNetCoreCLI@2
+    displayName: '📦 Publicar aplicación (dotnet publish)'
+    inputs:
+      command: 'publish'
+      publishWebProjects: false
+      zipAfterPublish: false
+      projects: '**/Users.Functions/Users.Functions/Users.Functions.csproj'
+      arguments: '--no-restore --configuration Release --output $(Build.ArtifactStagingDirectory)/wwwroot'
+  
+  # Comprimir los archivos publicados manualmente en un ZIP
+  - task: ArchiveFiles@2
+    displayName: '📦 Comprimir archivos publicados'
+    inputs:
+      rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/wwwroot'
+      includeRootFolder: false
+      archiveFile: '$(Build.ArtifactStagingDirectory)/Users.Functions.zip'
+  
+  # Publicar los artefactos
+  - task: PublishBuildArtifacts@1
+    displayName: '🚀 Publicar artefactos (Drop)'
+    inputs:
+      pathToPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: 'drop'
+      publishLocation: 'Container'

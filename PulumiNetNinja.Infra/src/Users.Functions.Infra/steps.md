@@ -23,21 +23,21 @@ pulumi stack select users-functions-pro
 
 # set up vars for users-functions-dev
 ```
-pulumi config set projectName usersfdev --stack users-functions-dev
+pulumi config set projectName usersf --stack users-functions-dev
 pulumi config set env dev --stack users-functions-dev
 pulumi config set location northeurope --stack users-functions-dev
 ```
 
 # set up vars for users-functions-pre
 ```
-pulumi config set projectName usersfpre --stack users-functions-pre
+pulumi config set projectName usersf --stack users-functions-pre
 pulumi config set env pre --stack users-functions-pre
 pulumi config set location northeurope --stack users-functions-pre
 ```
 
 # set up vars for users-functions-pro
 ```
-pulumi config set projectName usersfpro --stack users-functions-pro
+pulumi config set projectName usersf --stack users-functions-pro
 pulumi config set env pro --stack users-functions-pro
 pulumi config set location northeurope --stack users-functions-pro
 ```

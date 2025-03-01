@@ -57,23 +57,23 @@ return await Pulumi.Deployment.RunAsync(() =>
     },
     new CustomResourceOptions
     {
-        DependsOn = new[] { resourceGroup.ResourceGroupData } // Prioriza la dependencia en el grupo de recursos
+        DependsOn = new[] { resourceGroup.ResourceGroupData } 
     });
 
-    // Actualizar la configuración con el ID del Workspace
+    
     UpdateAppSettingsWithWorkspaceResourceId(logAnalyticsWorkspace.Id);
 
     var appInsights = new Component($"{projectName}-insights-{environment}", new ComponentArgs
     {
         ResourceName = $"{projectName}-insights-{environment}",
-        ResourceGroupName = resourceGroup.ResourceGroupData.Name.Apply(name => name), // Corrige uso de Output<string>
+        ResourceGroupName = resourceGroup.ResourceGroupData.Name.Apply(name => name), 
         Location = location,
         ApplicationType = "FunctionApp",
         Kind = "functionapp",
-        WorkspaceResourceId = logAnalyticsWorkspace.Id.Apply(id => id) // Asegura el uso correcto del Output<string>
+        WorkspaceResourceId = logAnalyticsWorkspace.Id.Apply(id => id) 
     }, new CustomResourceOptions
     {
-        DependsOn = new[] { logAnalyticsWorkspace } // Asegúrate de que espere al workspace
+        DependsOn = new[] { logAnalyticsWorkspace } 
     });
     
     var serverName = sqlServerResource.SqlServerData.Name.Apply(name => name);
@@ -98,6 +98,8 @@ return await Pulumi.Deployment.RunAsync(() =>
         }
         /* TODO */
         /* depend on stg to pick the storageAccountKey after stg creation */
+        
+        /*Azure Resource Manager using App registration or managed identity (manual)*/
     );
 
     var outputs = new Dictionary<string, object?>
