@@ -3,11 +3,14 @@ trigger:
     include:
       - development
 
+#pool:
+  #name: Self-hosted
+  #demands:
+    #- agent.name -equals INVESP00011
+  #maxParallelism: 1
+  
 pool:
-  name: Self-hosted
-  demands:
-    - agent.name -equals INVESP00011
-  maxParallelism: 1
+  vmImage: 'windows-latest'
 
 steps:
   # Confirmación inicial de que el agente está funcionando correctamente

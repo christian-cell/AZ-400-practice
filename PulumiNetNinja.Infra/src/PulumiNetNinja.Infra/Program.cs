@@ -86,7 +86,8 @@ return await Pulumi.Deployment.RunAsync(() =>
     {
         { "ConnectionStrings__DefaultConnection", sqlConnectionString },
         { "StorageAccountKey", storageAccountKey },                      
-        { "APPINSIGHTS_INSTRUMENTATIONKEY", appInsights.InstrumentationKey } 
+        { "APPINSIGHTS_INSTRUMENTATIONKEY", appInsights.InstrumentationKey }, 
+        { "FUNCTIONS_WORKER_RUNTIME", Output.Create("dotnet-isolated") }, 
     };
 
     // 📄 create the web app

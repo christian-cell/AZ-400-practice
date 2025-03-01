@@ -63,6 +63,8 @@ pulumi logs
 pulumi preview
 ```
 
+pulumi config set azure-native:tenantId 4d13e0f3-a99e-4062-a125-77677db96130
+
 5 we can cancel the process like this
 
 ```
@@ -104,3 +106,4 @@ Set pulumi to use new directory
 ```
 pulumi config set azure-native:tenantId <your_tenant_id>
 ```
+
