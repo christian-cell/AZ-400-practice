@@ -1,0 +1,5 @@
+config:
+  Users.ContainerApp.Infra:projectName: users
+  Users.ContainerApp.Infra:env: dev
+  Users.ContainerApp.Infra:location: northeurope
+  Users.ContainerApp.Infra:registryName: chrUsers
