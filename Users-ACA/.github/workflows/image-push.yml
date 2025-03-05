@@ -1,0 +1,51 @@
+name: '19 - Github Action to push to Azure Container Registry (a)'
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    #check relative paths
+    defaults:
+      run:
+        working-directory: './src/UsersACA.API/UsersACA.API'
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: '⚙️ Set VERSION'
+        id: set_version
+        run: echo "VERSION=$(date +%s)" >> $GITHUB_ENV
+
+      - name: '🐋 Build Docker image'
+        run: docker build -f Dockerfile -t users-aca:${{ env.VERSION }} .
+
+      - uses: azure/login@v1
+        name: '🔓 az login'
+        with:
+          creds: '{"clientId":"${{ vars.SERVICE_PRINCIPAL_CLIENT_ID }}","clientSecret":"${{ secrets.SERVICE_PRINCIPAL_CLIENT_SECRET }}","subscriptionId":"${{ vars.SUBSCRIPTION_ID }}","tenantId":"${{ vars.TENANT_ID }}"}'
+
+      - name: '🔓 Login to Azure Container Registry'
+        run: |
+          az acr login --name chrUsers
+
+      - name: '🔰 Tag Docker image'
+        run: |
+          docker tag users-aca:${{ env.VERSION }} chrusers.azurecr.io/users-aca:latest
+          docker tag users-aca:${{ env.VERSION }} chrusers.azurecr.io/users-aca:${{ env.VERSION }}
+
+      - name: '⬆️ Upload Docker image'
+        run: |
+          docker push chrusers.azurecr.io/users-aca:latest
+          docker push chrusers.azurecr.io/users-aca:${{ env.VERSION }}
+
+      # go go go go
+      - name: '🚀 Deploy to Azure Container Apps'
+        run: |
+          az containerapp update --name users-container-app --resource-group users-rg-container-dev --image chrusers.azurecr.io/users-aca:latest

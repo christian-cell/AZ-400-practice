@@ -1,0 +1,27 @@
+name: 'Github Action to Build Docker Image'
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    defaults:
+          run:
+            working-directory: './src/UsersACA.API/UsersACA.API'
+
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: '🐋 Build Docker image'
+      run: docker build -f Dockerfile -t users-aca:latest .
+
+    - name: '🐋 List images'
+      run: docker images
