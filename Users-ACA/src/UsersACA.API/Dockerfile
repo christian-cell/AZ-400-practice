@@ -8,15 +8,14 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 
 WORKDIR /src
-COPY ["UsersACA.API.csproj", "./"]
-RUN dotnet restore "UsersACA.API.csproj"
 COPY . .
+RUN dotnet restore "UsersACA.API/UsersACA.API.csproj"
 WORKDIR "/src"
-RUN dotnet build "UsersACA.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "UsersACA.API/UsersACA.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "UsersACA.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "UsersACA.API/UsersACA.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 RUN rm /src/UsersACA.API.deps.json || true
 RUN rm /src/UsersACA.API.runtimeconfig.json || true
 

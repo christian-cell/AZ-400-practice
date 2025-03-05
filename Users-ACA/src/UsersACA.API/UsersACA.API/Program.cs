@@ -1,5 +1,9 @@
 using Microsoft.OpenApi.Models;
+using UsersACA.Services.Abstractions;
+using UsersACA.Services.Services;
 
+/*using UsersACA.Services.Services;
+using UsersACA.Services.Abstractions;*/
 namespace UsersACA.API
 {
     public class Program
@@ -23,6 +27,8 @@ namespace UsersACA.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Users-ACA API", Version = "v1" });
             });
+            
+            
 
             builder.Services.AddCors((options) =>
             {
@@ -34,6 +40,8 @@ namespace UsersACA.API
                         .AllowCredentials();
                 });
             });
+
+            builder.Services.AddTransient<IUsersService, UsersService>();
 
 
             var app = builder.Build();

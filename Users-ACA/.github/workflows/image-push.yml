@@ -14,7 +14,7 @@ jobs:
     #check relative paths
     defaults:
       run:
-        working-directory: './src/UsersACA.API/UsersACA.API'
+        working-directory: './src/UsersACA.API'
     steps:
 
       - uses: actions/checkout@v4

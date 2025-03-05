@@ -107,6 +107,16 @@
         "frameworkReferences": [
           "Microsoft.AspNetCore.App"
         ]
+      },
+      "UsersACA.Services/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/UsersACA.Services.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/UsersACA.Services.dll": {}
+        }
       }
     }
   },
@@ -473,12 +483,18 @@
         "swashbuckle.aspnetcore.swaggerui.6.6.2.nupkg.sha512",
         "swashbuckle.aspnetcore.swaggerui.nuspec"
       ]
+    },
+    "UsersACA.Services/1.0.0": {
+      "type": "project",
+      "path": "../UsersACA.Services/UsersACA.Services.csproj",
+      "msbuildProject": "../UsersACA.Services/UsersACA.Services.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
       "Microsoft.AspNetCore.OpenApi >= 8.0.13",
-      "Swashbuckle.AspNetCore >= 6.6.2"
+      "Swashbuckle.AspNetCore >= 6.6.2",
+      "UsersACA.Services >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -518,7 +534,11 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\ChristianGarciaMarti\\AZ-400-practice\\Users-ACA\\src\\UsersACA.API\\UsersACA.Services\\UsersACA.Services.csproj": {
+              "projectPath": "C:\\Users\\ChristianGarciaMarti\\AZ-400-practice\\Users-ACA\\src\\UsersACA.API\\UsersACA.Services\\UsersACA.Services.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

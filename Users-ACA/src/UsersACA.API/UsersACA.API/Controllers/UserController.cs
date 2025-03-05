@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using UsersACA.Services.Abstractions;
 
 namespace UsersACA.API.Controllers
 {
@@ -7,11 +8,19 @@ namespace UsersACA.API.Controllers
     
     public class UserController : Base
     {
+        private readonly IUsersService _usersService;
+
+        public UserController(IUsersService usersService)
+        {
+            _usersService = usersService;
+        }
+
+
         [HttpGet]
         public string GreatPople()
         {
-            
-            return "Hola que asee";
+
+            return _usersService.GreatPeople();
         }
     }
 };

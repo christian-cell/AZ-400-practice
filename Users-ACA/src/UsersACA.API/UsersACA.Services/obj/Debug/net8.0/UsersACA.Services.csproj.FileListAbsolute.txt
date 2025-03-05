@@ -1,0 +1,12 @@
+C:\Users\ChristianGarciaMarti\AZ-400-practice\Users-ACA\src\UsersACA.API\UsersACA.Services\bin\Debug\net8.0\UsersACA.Services.deps.json
+C:\Users\ChristianGarciaMarti\AZ-400-practice\Users-ACA\src\UsersACA.API\UsersACA.Services\bin\Debug\net8.0\UsersACA.Services.dll
+C:\Users\ChristianGarciaMarti\AZ-400-practice\Users-ACA\src\UsersACA.API\UsersACA.Services\bin\Debug\net8.0\UsersACA.Services.pdb
+C:\Users\ChristianGarciaMarti\AZ-400-practice\Users-ACA\src\UsersACA.API\UsersACA.Services\obj\Debug\net8.0\UsersACA.Services.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ChristianGarciaMarti\AZ-400-practice\Users-ACA\src\UsersACA.API\UsersACA.Services\obj\Debug\net8.0\UsersACA.Services.AssemblyInfoInputs.cache
+C:\Users\ChristianGarciaMarti\AZ-400-practice\Users-ACA\src\UsersACA.API\UsersACA.Services\obj\Debug\net8.0\UsersACA.Services.AssemblyInfo.cs
+C:\Users\ChristianGarciaMarti\AZ-400-practice\Users-ACA\src\UsersACA.API\UsersACA.Services\obj\Debug\net8.0\UsersACA.Services.csproj.CoreCompileInputs.cache
+C:\Users\ChristianGarciaMarti\AZ-400-practice\Users-ACA\src\UsersACA.API\UsersACA.Services\obj\Debug\net8.0\UsersACA.Services.sourcelink.json
+C:\Users\ChristianGarciaMarti\AZ-400-practice\Users-ACA\src\UsersACA.API\UsersACA.Services\obj\Debug\net8.0\UsersACA.Services.dll
+C:\Users\ChristianGarciaMarti\AZ-400-practice\Users-ACA\src\UsersACA.API\UsersACA.Services\obj\Debug\net8.0\refint\UsersACA.Services.dll
+C:\Users\ChristianGarciaMarti\AZ-400-practice\Users-ACA\src\UsersACA.API\UsersACA.Services\obj\Debug\net8.0\UsersACA.Services.pdb
+C:\Users\ChristianGarciaMarti\AZ-400-practice\Users-ACA\src\UsersACA.API\UsersACA.Services\obj\Debug\net8.0\ref\UsersACA.Services.dll
