@@ -2,4 +2,5 @@ config:
   Users.Functions.Infra:projectName: usersf
   Users.Functions.Infra:env: dev
   Users.Functions.Infra:location: northeurope
-  azure-native:subscriptionId: 416268c2-d33e-4407-9e28-6db4446ae43f
+  azure-native:subscriptionId: d65a3138-5e37-4af7-9663-8a8aeec6634a
+  azure-native:tenantId: "4d13e0f3-a99e-4062-a125-77677db96130"

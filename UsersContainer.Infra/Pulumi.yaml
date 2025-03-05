@@ -1,0 +1,7 @@
+name: Users.ContainerApp.Infra
+description: All the minimal infra to create an ACR and a Azure Container App
+runtime: dotnet
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: azure-csharp
