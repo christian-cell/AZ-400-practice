@@ -1,0 +1,135 @@
+﻿trigger:
+  branches:
+    include:
+      - development
+
+variables:
+  - group: users-container-dev
+  - group: users-container-dev-public
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  - stage: Build
+    displayName: 'Build application'
+    
+    jobs:
+      - job: Build
+        displayName: 'Build'
+        
+        steps:
+          - checkout: self
+            
+          - script: |
+              echo "Cleaning build directories..."
+              rm -rf **/bin
+              rm -rf **/obj
+            displayName: 'Clean'
+
+          - task: UseDotNet@2
+            displayName: 'Set up .NET Core SDK'
+            inputs:
+              packageType: 'sdk'
+              version: '8.0.x'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore, Build & Publish'
+            inputs:
+              command: 'publish'
+              projects: '**/Users.Acr.Image/Users.Acr.Image/Users.Acr.Image.csproj'
+              arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/app'
+              zipAfterPublish: false
+              
+          - script: ls -la $(Build.ArtifactStagingDirectory)/app
+            displayName: 'List contents in $(Build.ArtifactStagingDirectory)/app'
+          
+          # 🛠️
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathtoPublish: '$(Build.ArtifactStagingDirectory)/app'
+              artifactName: 'drop'
+          
+
+  - stage: Docker
+    displayName: 'Build and Push Docker image'
+    
+    jobs:
+      - job: 'BuildAndPush'
+        displayName: 'Build and Push'
+        steps:
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(Build.ArtifactStagingDirectory)'
+
+          - script: ls -la $(Build.ArtifactStagingDirectory)/drop
+            displayName: 'List directory contents in drop'
+
+          - script: ls -la $(Build.ArtifactStagingDirectory)/drop/Users.Acr.Image
+            displayName: 'List directory contents in Users.Acr.Image'
+          - script: |
+              echo "Cleaning build directories..."
+              rm -rf $(Build.ArtifactStagingDirectory)/drop/Users.Acr.Image/bin
+              rm -rf $(Build.ArtifactStagingDirectory)/drop/Users.Acr.Image/obj
+            displayName: 'Clean'
+
+          - script: ls -la $(Build.ArtifactStagingDirectory)/drop/Users.Acr.Image
+            displayName: 'Segunda limpieza'
+
+          - script: |
+              docker login -u users-token -p $(acr-password) $(RegistryName)
+            displayName: 'Docker Login'
+
+          - task: Docker@2
+            displayName: 'Build Docker Image'
+            inputs:
+              repository: '$(RegistryName)/$(ImageName)'
+              dockerfile: '$(Build.ArtifactStagingDirectory)/drop/Users.Acr.Image/Dockerfile'
+              buildContext: '$(Build.ArtifactStagingDirectory)/drop/Users.Acr.Image'
+              tags: '$(Build.BuildId)'
+
+          - task: Docker@2
+            displayName: 'Push Docker Image'
+            inputs:
+              command: 'push'
+              repository: '$(RegistryName)/$(ImageName)'
+              tags: '$(Build.BuildId)'
+              
+  - stage: Deploy
+    displayName: 'Deploy to Azure Container Instance'
+    jobs:
+      - job: 'Deploy'
+        displayName: 'Deploy'
+        steps:
+          - task: Bash@3
+            displayName: 'Docker Login and Pull Image'
+            inputs:
+              targetType: 'inline'
+              script: |
+                docker login -u pull-image -p $(pull-password) $(RegistryName)
+                docker pull $(RegistryName)/$(ImageName):$(Build.BuildId)
+          - task: AzureCLI@2
+            displayName: 'Update the Image in the Azure Container Instance'
+            inputs:
+              azureSubscription: '$(ServiceConnection)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az container delete --name $(ContainerInstance) --resource-group $(ResourceGroup) --yes
+
+                az container create \
+                  --resource-group $(ResourceGroup) \
+                  --name $(ContainerInstance) \
+                  --image $(RegistryName)/$(ImageName):$(Build.BuildId) \
+                  --restart-policy Always \
+                  --registry-username $(AcrUserName) \
+                  --registry-password $(acr-main-password) \
+                  --os-type Linux \
+                  --memory 2 \
+                  --cpu 1.5 \
+                  --ip-address Public \
+                  --ports 8080
+        # TODO add static ip to container instance : https://learn.microsoft.com/en-us/azure/container-instances/container-instances-application-gateway

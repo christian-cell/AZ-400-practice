@@ -1,0 +1,6 @@
+@Users.Acr.Image_HostAddress = http://localhost:5052
+
+GET {{Users.Acr.Image_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
