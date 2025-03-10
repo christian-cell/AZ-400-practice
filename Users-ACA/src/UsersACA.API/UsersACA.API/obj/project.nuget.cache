@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "a2/bpGJ64Iv4Izc7vGfbRMjO7XOwwz+y9gYJPTd/2kKXS0e0bobaIQ/zNdkeYwHRTDaywrzkUp2gr2NtgSa4PQ==",
+  "dgSpecHash": "jW19NVZXrTD70Z4iKOWecrXwTAWOw7e3GVmKDd3nUou+qKgZLY7AXn7qFiGq2YY5KUh2pufON9HxFpRdV4XRkg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\ChristianGarciaMarti\\AZ-400-practice\\Users-ACA\\src\\UsersACA.API\\UsersACA.API\\UsersACA.API.csproj",
+  "projectFilePath": "C:\\Users\\ChristianGarciaMarti\\AZ-400-practice\\git-repo\\Users-ACA\\src\\UsersACA.API\\UsersACA.API\\UsersACA.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ChristianGarciaMarti\\.nuget\\packages\\microsoft.aspnetcore.openapi\\8.0.13\\microsoft.aspnetcore.openapi.8.0.13.nupkg.sha512",
     "C:\\Users\\ChristianGarciaMarti\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",

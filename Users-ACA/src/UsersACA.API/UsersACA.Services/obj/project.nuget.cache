@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "3L6CIdH5l4LsOSqwAQINwSYXKBKJaicEgVWtBgH1qSH3rpoPc/L6iH7amQbKXwNKc3+7A7h0YjIhkM/xzWDcpw==",
+  "dgSpecHash": "EfS4OrxxKZSLN7rQau9hi+IkfFdSBAHAWkMDBUMUsABRPH1/drnB8DPgtbWrX6oUmgTVp9jcZPtvyqIQn1GoQg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\ChristianGarciaMarti\\AZ-400-practice\\Users-ACA\\src\\UsersACA.API\\UsersACA.Services\\UsersACA.Services.csproj",
+  "projectFilePath": "C:\\Users\\ChristianGarciaMarti\\AZ-400-practice\\git-repo\\Users-ACA\\src\\UsersACA.API\\UsersACA.Services\\UsersACA.Services.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

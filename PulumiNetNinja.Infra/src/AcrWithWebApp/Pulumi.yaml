@@ -1,0 +1,7 @@
+name: AcrWithWebApp
+description: project to attach web app to Acr to pull latest image and run a container with it
+runtime: dotnet
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: azure-csharp
