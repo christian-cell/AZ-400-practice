@@ -8,7 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="Pulumi" Version="3.*" />
+    <PackageReference Include="Pulumi.AzureAD" Version="6.2.0" />
     <PackageReference Include="Pulumi.AzureNative" Version="2.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

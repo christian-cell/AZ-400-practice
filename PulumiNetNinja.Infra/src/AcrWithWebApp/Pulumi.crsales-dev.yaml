@@ -1,0 +1,4 @@
+config:
+  AcrWithWebApp:projectName: crsales
+  AcrWithWebApp:env: dev
+  AcrWithWebApp:location: northeurope

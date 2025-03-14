@@ -3,3 +3,4 @@ config:
   AcrWithWebApp:projectName: users-acr
   AcrWithWebApp:env: dev
   AcrWithWebApp:location: northeurope
+  azure-native:tenantId: 7f1515ce-eca9-44de-8704-a993e9998a9a

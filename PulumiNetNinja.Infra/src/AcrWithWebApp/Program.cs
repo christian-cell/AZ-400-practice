@@ -1,127 +1,60 @@
-﻿using AcrWithWebApp.Resources;
+﻿using AcrWithWebApp.Configs;
+using AcrWithWebApp.Resources;
 using Pulumi;
-using Pulumi.AzureNative.Web;
-using Pulumi.AzureNative.ContainerRegistry;
-using Pulumi.AzureNative.ContainerRegistry.Inputs;
-using Pulumi.AzureNative.Web.Inputs;
-using ManagedServiceIdentityType = Pulumi.AzureNative.Web.ManagedServiceIdentityType;
-using SkuName = Pulumi.AzureNative.ContainerRegistry.SkuName;
-using Pulumi.AzureNative.Authorization;
+
+// SqlConfig
+var sqlServerConfig = SqlServerConfig.Load();
 
 return await Pulumi.Deployment.RunAsync(() =>
 {
+    // Stack Params
     var config = new Pulumi.Config();
     var projectName = config.Require("projectName");
     var environment = config.Require("env");
     var location = config.Get("location") ?? "northeurope";
     
+    // 🛠️ resource group
     var resourceGroup = new ResourceGroup(
         name: $"{projectName}-rg-{environment}",
         location: location
     );
-
-    var containerRegistry = new Registry("pulumiacrchr", new RegistryArgs
-    {
-        ResourceGroupName = resourceGroup.ResourceGroupData.Name,
-        Location = location,
-        AdminUserEnabled = true,
-        RegistryName = "pulumiacrchr",
-        Sku = new SkuArgs
-        {
-            Name = SkuName.Basic
-        }
-    });
-
-    var appServicePlan = new AppServicePlan("appServicePlan", new AppServicePlanArgs
-    {
-        ResourceGroupName = resourceGroup.ResourceGroupData.Name,
-        Location = resourceGroup.ResourceGroupData.Location,
-        Name = $"{projectName}-{environment}-serviceplan",
-        Kind = "Linux",
-        Reserved = true,
-        Sku = new SkuDescriptionArgs
-        {
-            Tier = "Basic",
-            Name = "B1"
-        },
-    });
-
-    var webApp = new WebApp("pulumi-wa-container", new WebAppArgs
-    {        
-        ResourceGroupName = resourceGroup.ResourceGroupData.Name,
-        Location = resourceGroup.ResourceGroupData.Location,
-        ServerFarmId = appServicePlan.Id,
-        HttpsOnly = true,
-        Name = "pulumi-wa-container",
-        Identity = new ManagedServiceIdentityArgs
-        {
-            Type = ManagedServiceIdentityType.SystemAssigned,
-        },
-        SiteConfig = new SiteConfigArgs
-        {
-            AppSettings =
-            {
-                new NameValuePairArgs
-                {
-                    Name = "WEBSITES_PORT",
-                    Value = "8080",
-                },
-                new NameValuePairArgs{
-                    Name = "DOCKER_REGISTRY_SERVER_URL",
-                    Value = containerRegistry.LoginServer.Apply(server => $"https://{server}")
-                },
-                new NameValuePairArgs
-                {
-                    Name = "DOCKER_ENABLE_CI",
-                    Value = "true"
-                },                
-            },
-            AlwaysOn = true,
-            ManagedPipelineMode = ManagedPipelineMode.Integrated,
-            AcrUseManagedIdentityCreds = true,
-            LinuxFxVersion = $"DOCKER|pulumiacrchr.azurecr.io/pulumi-image:latest"
-        },
-    }, new CustomResourceOptions
-    {
-        DependsOn = containerRegistry
-    });
     
-    var subscriptionId = Output.Create(GetClientConfig.InvokeAsync()).Apply(config => config.SubscriptionId);
-
-    var acrPullRoleAssignment = new Pulumi.AzureNative.Authorization.RoleAssignment("acrPullRole", new Pulumi.AzureNative.Authorization.RoleAssignmentArgs
-    {
-        Scope = containerRegistry.Id, 
-        PrincipalId = webApp.Identity.Apply(identity => identity?.PrincipalId ?? ""), 
-        RoleDefinitionId = subscriptionId.Apply(id =>$"/subscriptions/{id}/providers/Microsoft.Authorization/roleDefinitions/7f951dda-4ed3-4680-a7ca-43fe172d538d"),
-        PrincipalType = "ServicePrincipal" 
-    });
-
-
-    var webhookUri = Output.Tuple(webApp.Name, resourceGroup.ResourceGroupData.Name).Apply(async tuple =>
-    {
-        var webAppName = tuple.Item1;
-        var resourceGroupName = tuple.Item2;
-
-        var credentials = await ListWebAppPublishingCredentials.InvokeAsync(new ListWebAppPublishingCredentialsArgs
-        {
-            Name = webAppName,
-            ResourceGroupName = resourceGroupName
-        });
-
-        return credentials.ScmUri; 
-    });
+    // 💾 storage account
+    var storageAccount = new StorageAccountResource(
+        /*storageAccountConfig,*/
+        accountName: $"{projectName}stg{environment}",
+        resourceGroup: resourceGroup
+    );
     
-    var webhookFullUri = webhookUri.Apply(uri => $"{uri}/api/registry/webhook");
+    // 📇 database
+    var sqlServerResource = new SqlServerResource(
+        sqlServerConfig: sqlServerConfig,
+        resourceGroup: resourceGroup,
+        environment: environment,
+        serverName : $"{projectName}-sql-{environment}",
+        projectName: projectName,
+        location: location
+    );
+    
+    // 📈 telemetry
 
-    var acrWebhook = new Pulumi.AzureNative.ContainerRegistry.Webhook("acrwebhook", new Pulumi.AzureNative.ContainerRegistry.WebhookArgs
-    {
-        ResourceGroupName = resourceGroup.ResourceGroupData.Name,
-        RegistryName = containerRegistry.Name,
-        WebhookName = "acrwebhook",
-        Location = location,
-        ServiceUri = webhookFullUri,
-        Status = "enabled",
-        Actions = { "push" },
-        Scope = "pulumi-image:latest",
-    });
+    var logAnalyticsWorkspace = new AnalyticsWorkSpace(projectName, environment, location, resourceGroup);
+    var appInsights = new ApplicationInsights(projectName, environment, resourceGroup, location, logAnalyticsWorkspace);
+    
+    var sqlConnectionString = Output.Format($@"Server={sqlServerResource.SqlServerData.Name}.database.windows.net;Database={sqlServerConfig.DatabaseName}-{environment};User Id={sqlServerConfig.AdminUsername};Password={sqlServerConfig.AdminPassword};");
+    var storageAccountKey = storageAccount.PrimaryStorageKey;
+
+    
+    var containerRegistry = new Acr( resourceGroup , location );
+    
+    var apiPlan = new PlanApi(resourceGroup, projectName, environment);
+    var frontPlan = new PlanFront(resourceGroup, projectName, environment);
+    var api = new Api(resourceGroup, apiPlan, containerRegistry, projectName , environment, storageAccountKey, sqlConnectionString);
+    var web = new Web(resourceGroup, frontPlan, containerRegistry, projectName , environment);
+    var roleAssignement = new RoleAssignement( containerRegistry , api , web );
+    var acrApiWebhook = new AcrApiWebhook(api, resourceGroup, containerRegistry, location, projectName, environment);
+    var acrFrontWebhook = new AcrFrontWebhook(web, resourceGroup, containerRegistry, location, projectName, environment);
+    var appRegistration = new AppRegistration(projectName, environment, web);
 });
+
+
