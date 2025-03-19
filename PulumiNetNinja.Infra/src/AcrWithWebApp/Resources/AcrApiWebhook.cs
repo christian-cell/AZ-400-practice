@@ -1,3 +1,4 @@
+using AcrWithWebApp.Configs;
 using Pulumi;
 using Pulumi.AzureNative.Web;
 
@@ -7,9 +8,9 @@ namespace AcrWithWebApp.Resources
     {
         public Pulumi.AzureNative.ContainerRegistry.Webhook Webhook;
         
-        public AcrApiWebhook( Api api, ResourceGroup resourceGroup, Acr containerRegistry , string location, string projectName, string environment )
+        public AcrApiWebhook( AcrApiWebhookConfiguration config )
         {
-            Output<string?> webhookUri = Output.Tuple(api.AppData.Name, resourceGroup.ResourceGroupData.Name).Apply(async tuple =>
+            Output<string?> webhookUri = Output.Tuple(config.Api.AppData.Name, config.ResourceGroup.ResourceGroupData.Name).Apply(async tuple =>
             {
                 var webAppName = tuple.Item1;
                 var resourceGroupName = tuple.Item2;
@@ -25,12 +26,12 @@ namespace AcrWithWebApp.Resources
             
             Output<string> webhookFullUri = webhookUri.Apply(uri => $"{uri}/api/registry/webhook");
             
-            Webhook = new Pulumi.AzureNative.ContainerRegistry.Webhook($"{projectName}api{environment}acrwebhook", new Pulumi.AzureNative.ContainerRegistry.WebhookArgs
+            Webhook = new Pulumi.AzureNative.ContainerRegistry.Webhook($"{config.ProjectName}api{config.Environment}acrwebhook", new Pulumi.AzureNative.ContainerRegistry.WebhookArgs
             {
-                ResourceGroupName = resourceGroup.ResourceGroupData.Name,
-                RegistryName = containerRegistry.AzureContainerRegistryData.Name,
-                WebhookName = $"{projectName}api{environment}acrwebhook",
-                Location = location,
+                ResourceGroupName = config.ResourceGroup.ResourceGroupData.Name,
+                RegistryName = config.ContainerRegistry.AzureContainerRegistryData.Name,
+                WebhookName = $"{config.ProjectName}api{config.Environment}acrwebhook",
+                Location = config.Location,
                 ServiceUri = webhookFullUri,
                 Status = "enabled",
                 Actions = { "push" },

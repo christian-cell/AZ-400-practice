@@ -1,3 +1,4 @@
+using AcrWithWebApp.Configs;
 using Pulumi.AzureNative.Web;
 using Pulumi.AzureNative.Web.Inputs;
 using Pulumi;
@@ -9,15 +10,15 @@ namespace AcrWithWebApp.Resources
         public WebApp AppData { get; }
         public Output<string> AppUrl { get; }
         
-        public Web( ResourceGroup resourceGroup , PlanFront appServicePlanFront , Acr containerRegistry, string projectName , string environment )
+        public Web( FrontWebAppConfiguration config )
         {
-            AppData = new WebApp($"{projectName}-{environment}", new WebAppArgs
+            AppData = new WebApp($"{config.ProjectName}-{config.Environment}", new WebAppArgs
             {        
-                ResourceGroupName = resourceGroup.ResourceGroupData.Name,
-                Location = resourceGroup.ResourceGroupData.Location,
-                ServerFarmId = appServicePlanFront.PlanData.Id,
+                ResourceGroupName = config.ResourceGroup.Name,
+                Location = config.ResourceGroup.Location,
+                ServerFarmId = config.PlanFront.PlanData.Id,
                 HttpsOnly = true,
-                Name = $"{projectName}-{environment}",
+                Name = $"{config.ProjectName}-{config.Environment}",
                 Identity = new ManagedServiceIdentityArgs
                 {
                     Type = ManagedServiceIdentityType.SystemAssigned,
@@ -33,7 +34,7 @@ namespace AcrWithWebApp.Resources
                         },
                         new NameValuePairArgs{
                             Name = "DOCKER_REGISTRY_SERVER_URL",
-                            Value = containerRegistry.AzureContainerRegistryData.LoginServer.Apply(server => $"https://{server}")
+                            Value = config.ContainerRegistry.AzureContainerRegistryData.LoginServer.Apply(server => $"https://{server}")
                         },
                         new NameValuePairArgs
                         {
@@ -44,11 +45,11 @@ namespace AcrWithWebApp.Resources
                     AlwaysOn = true,
                     ManagedPipelineMode = ManagedPipelineMode.Integrated,
                     AcrUseManagedIdentityCreds = true,
-                    LinuxFxVersion = $"DOCKER|pulumiacrchr.azurecr.io/users:latest"
+                    LinuxFxVersion = $"DOCKER|pulumiacrchr.azurecr.io/pulumi:latest"
                 },
             }, new CustomResourceOptions
             {
-                DependsOn = containerRegistry.AzureContainerRegistryData
+                DependsOn = config.ContainerRegistry.AzureContainerRegistryData
             });
             
             AppUrl = Output.Format($"https://{AppData.DefaultHostName}");

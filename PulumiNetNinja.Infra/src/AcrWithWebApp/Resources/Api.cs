@@ -1,3 +1,4 @@
+using AcrWithWebApp.Configs;
 using Pulumi.AzureNative.Web;
 using Pulumi.AzureNative.Web.Inputs;
 using Pulumi;
@@ -8,15 +9,15 @@ namespace AcrWithWebApp.Resources
     {
         public WebApp AppData { get; }
         
-        public Api( ResourceGroup resourceGroup , PlanApi appServicePlanApi , Acr containerRegistry, string projectName, string environment,  Output<string> storageAccountKey,  Output<string> sqlConnectionString )
+        public Api( ApiWebAppConfiguration config )
         {
-            AppData = new WebApp($"{projectName}-api-{environment}", new WebAppArgs
+            AppData = new WebApp($"{config.ProjectName}-api-{config.Environment}", new WebAppArgs
             {        
-                ResourceGroupName = resourceGroup.ResourceGroupData.Name,
-                Location = resourceGroup.ResourceGroupData.Location,
-                ServerFarmId = appServicePlanApi.PlanData.Id,
+                ResourceGroupName = config.ResourceGroup.Name,
+                Location = config.ResourceGroup.Location,
+                ServerFarmId = config.PlanApi.PlanData.Id,
                 HttpsOnly = true,
-                Name = $"{projectName}-api-{environment}",
+                Name = $"{config.ProjectName}-api-{config.Environment}",
                 Identity = new ManagedServiceIdentityArgs
                 {
                     Type = ManagedServiceIdentityType.SystemAssigned,
@@ -33,32 +34,27 @@ namespace AcrWithWebApp.Resources
                         new NameValuePairArgs
                         {
                             Name = "ConnectionStrings__DefaultConnection",
-                            Value = sqlConnectionString,
+                            Value = config.SqlConnectionString,
                         },
                         new NameValuePairArgs
                         {
                             Name = "APPINSIGHTS_INSTRUMENTATIONKEY",
-                            Value = storageAccountKey,
+                            Value = config.StorageAccountKey,
                         },
                         new NameValuePairArgs{
                             Name = "DOCKER_REGISTRY_SERVER_URL",
-                            Value = containerRegistry.AzureContainerRegistryData.LoginServer.Apply(server => $"https://{server}")
+                            Value = config.ContainerRegistry.AzureContainerRegistryData.LoginServer.Apply(server => $"https://{server}")
                         },
                         new NameValuePairArgs
                         {
                             Name = "DOCKER_ENABLE_CI",
                             Value = "true"
-                        }/*,
-                        new NameValuePairArgs
-                        {
-                            Name = "FUNCTIONS_WORKER_RUNTIME",
-                            Value = Output.Create("dotnet-isolated")
-                        },*/
+                        }
                     },
                     AlwaysOn = true,
                     ManagedPipelineMode = ManagedPipelineMode.Integrated,
                     AcrUseManagedIdentityCreds = true,
-                    LinuxFxVersion = $"DOCKER|pulumiacrchr.azurecr.io/users-api:latest",
+                    LinuxFxVersion = $"DOCKER|pulumiacrchr.azurecr.io/pulumi-image:latest",
                     
                     Cors = new CorsSettingsArgs
                     {
@@ -67,7 +63,7 @@ namespace AcrWithWebApp.Resources
                             "http://localhost:4200/",
                             "http://localhost:4201/",
                             "http://localhost:4202/",
-                            $"https://{projectName.ToLower()}-{environment}.azurewebsites.net/"
+                            $"https://{config.ProjectName.ToLower()}-{config.Environment}.azurewebsites.net/"
                         },
                         SupportCredentials = false,
                     }
@@ -75,7 +71,7 @@ namespace AcrWithWebApp.Resources
                 
             }, new CustomResourceOptions
             {
-                DependsOn = containerRegistry.AzureContainerRegistryData
+                DependsOn = config.ContainerRegistry.AzureContainerRegistryData
             });
         }
     }

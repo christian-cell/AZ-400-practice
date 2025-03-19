@@ -4,6 +4,7 @@ using Pulumi.AzureNative.OperationalInsights;
 using Pulumi.AzureNative.OperationalInsights.Inputs;
 using System.IO;
 using System.Text.Json;
+using AcrWithWebApp.Configs;
 
 namespace AcrWithWebApp.Resources
 {
@@ -11,18 +12,18 @@ namespace AcrWithWebApp.Resources
     {
         public Workspace AnalyticsWorkSpaceData;
 
-        public AnalyticsWorkSpace(string projectName , string environment, string location, ResourceGroup resourceGroup)
+        public AnalyticsWorkSpace( BaseConfiguration config, ResourceGroup resourceGroup )
         {
-            AnalyticsWorkSpaceData = new Workspace($"{projectName}-insights-{environment}", 
+            AnalyticsWorkSpaceData = new Workspace($"{config.ProjectName}-insights-{config.Environment}", 
                 new WorkspaceArgs
                 {
                     ResourceGroupName = resourceGroup.ResourceGroupData.Name,
-                    Location = location,
+                    Location = config.Location,
                     Sku = new WorkspaceSkuArgs
                     {
                         Name = "PerGB2018"
                     },
-                    WorkspaceName = $"{projectName}-insights-{environment}",
+                    WorkspaceName = $"{config.ProjectName}-insights-{config.Environment}",
                     RetentionInDays = 30
                 },
                 new CustomResourceOptions

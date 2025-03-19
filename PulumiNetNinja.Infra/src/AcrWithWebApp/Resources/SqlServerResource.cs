@@ -10,25 +10,25 @@ namespace AcrWithWebApp.Resources
         public Server SqlServerData { get; }
         public Database SqlDatabaseData { get; }
 
-        public SqlServerResource(SqlServerConfig sqlServerConfig, ResourceGroup resourceGroup, string environment, string serverName, string projectName, string location)
+        public SqlServerResource(SqlServerConfig sqlServerConfig, ResourceGroup resourceGroup, SqlServerConfiguration sqlServerConfiguration )
         {
             
-            SqlServerData = new Server(serverName, new ServerArgs
+            SqlServerData = new Server(sqlServerConfiguration.ServerName, new ServerArgs
             {
-                Location = location,
+                Location = sqlServerConfiguration.Location,
                 ResourceGroupName = resourceGroup.ResourceGroupData.Name,
                 AdministratorLogin = sqlServerConfig.AdminUsername,
                 AdministratorLoginPassword = sqlServerConfig.AdminPassword,
                 Version = "12.0", 
-                ServerName = serverName
+                ServerName = sqlServerConfiguration.ServerName
             });
 
-            SqlDatabaseData = new Database($"{projectName}-{environment}", new DatabaseArgs
+            SqlDatabaseData = new Database($"{sqlServerConfiguration.ProjectName}-{sqlServerConfiguration.Environment}", new DatabaseArgs
                 {
                     ResourceGroupName = resourceGroup.ResourceGroupData.Name,
-                    ServerName = serverName ,
+                    ServerName = sqlServerConfiguration.ServerName ,
                     CreateMode = "Default",
-                    Location = location,
+                    Location = sqlServerConfiguration.Location,
                     Sku = new SkuArgs
                     {
                         Name = "S0",

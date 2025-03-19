@@ -1,3 +1,4 @@
+using AcrWithWebApp.Configs;
 using Pulumi;
 using Pulumi.AzureAD;
 using Pulumi.AzureAD.Inputs;
@@ -8,30 +9,29 @@ namespace AcrWithWebApp.Resources
     public class AppRegistration
     {
         public Application AppRegistrationData;
-        public AppRegistration(string projectName , string environment, Web web)
+        public AppRegistration( AppRegistrationConfiguration config )
         {
-            Pulumi.Log.Info($"La URL de la aplicación web es: {web.AppUrl}");
-            Pulumi.Log.Info($"La URL de la aplicación web es: {web.AppUrl.ToString()}");
+            Pulumi.Log.Info($"La URL de la aplicación web es: {config.Web.AppUrl}");
+            Pulumi.Log.Info($"La URL de la aplicación web es: {config.Web.AppUrl.ToString()}");
             
-            web.AppUrl.Apply(url =>
+            config.Web.AppUrl.Apply(url =>
             {
-                // Imprimir la URL de la aplicación.
                 Pulumi.Log.Info($"La URL de la aplicación web es: {url}");
                 return url;
             });
             
-            AppRegistrationData = new Application($"{projectName}-{environment}-regis", new ApplicationArgs
+            AppRegistrationData = new Application($"{config.ProjectName}-{config.Environment}-regis", new ApplicationArgs
                 {
-                    DisplayName = $"{projectName}-{environment}-regis",
+                    DisplayName = $"{config.ProjectName}-{config.Environment}-regis",
                     SignInAudience = "AzureADMyOrg",  
 
                     Web = new ApplicationWebArgs
                     {
                         RedirectUris = new[]
                         {
-                            $"https://{projectName.ToLower()}-{environment}.azurewebsites.net/",
+                            $"https://{config.ProjectName.ToLower()}-{config.Environment}.azurewebsites.net/",
                             $"http://localhost:4200/",
-                            $"https://{projectName.ToLower()}-api-{environment}.azurewebsites.net/swagger/index.html"
+                            $"https://{config.ProjectName.ToLower()}-api-{config.Environment}.azurewebsites.net/swagger/index.html"
                         },
                         ImplicitGrant = new ApplicationWebImplicitGrantArgs
                         {
@@ -43,7 +43,7 @@ namespace AcrWithWebApp.Resources
                 
                 new CustomResourceOptions
                 {
-                    DependsOn = web.AppData
+                    DependsOn = config.Web.AppData
                 });
         }
     }

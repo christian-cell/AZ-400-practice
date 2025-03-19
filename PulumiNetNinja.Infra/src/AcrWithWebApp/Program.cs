@@ -21,7 +21,6 @@ return await Pulumi.Deployment.RunAsync(() =>
     
     // 💾 storage account
     var storageAccount = new StorageAccountResource(
-        /*storageAccountConfig,*/
         accountName: $"{projectName}stg{environment}",
         resourceGroup: resourceGroup
     );
@@ -30,31 +29,107 @@ return await Pulumi.Deployment.RunAsync(() =>
     var sqlServerResource = new SqlServerResource(
         sqlServerConfig: sqlServerConfig,
         resourceGroup: resourceGroup,
-        environment: environment,
-        serverName : $"{projectName}-sql-{environment}",
-        projectName: projectName,
-        location: location
+        new SqlServerConfiguration
+        {
+            ServerName = $"{projectName}-sql-{environment}",
+            Environment = environment,
+            Location = location,
+            ProjectName = projectName
+        }
     );
     
     // 📈 telemetry
 
-    var logAnalyticsWorkspace = new AnalyticsWorkSpace(projectName, environment, location, resourceGroup);
-    var appInsights = new ApplicationInsights(projectName, environment, resourceGroup, location, logAnalyticsWorkspace);
+    var logAnalyticsWorkspace = new AnalyticsWorkSpace(
+        new BaseConfiguration
+        {
+            Environment = environment,
+            ProjectName = projectName,
+            Location = location
+        }, 
+        resourceGroup
+        );
+    
+    var appInsights = new ApplicationInsights(
+        new BaseConfiguration
+        {
+            Environment = environment,
+            ProjectName = projectName,
+            Location = location
+        }
+        ,resourceGroup, logAnalyticsWorkspace
+        );
     
     var sqlConnectionString = Output.Format($@"Server={sqlServerResource.SqlServerData.Name}.database.windows.net;Database={sqlServerConfig.DatabaseName}-{environment};User Id={sqlServerConfig.AdminUsername};Password={sqlServerConfig.AdminPassword};");
     var storageAccountKey = storageAccount.PrimaryStorageKey;
 
-    
+    // 🐋 Azure container registry
     var containerRegistry = new Acr( resourceGroup , location );
     
     var apiPlan = new PlanApi(resourceGroup, projectName, environment);
+    
     var frontPlan = new PlanFront(resourceGroup, projectName, environment);
-    var api = new Api(resourceGroup, apiPlan, containerRegistry, projectName , environment, storageAccountKey, sqlConnectionString);
-    var web = new Web(resourceGroup, frontPlan, containerRegistry, projectName , environment);
+    
+    var api = new Api(
+        new ApiWebAppConfiguration()
+        {
+            ResourceGroup = resourceGroup.ResourceGroupData,
+            PlanApi = apiPlan,
+            ContainerRegistry = containerRegistry,
+            ProjectName = projectName,
+            Environment = environment,
+            StorageAccountKey = storageAccountKey,
+            SqlConnectionString = sqlConnectionString
+        }
+        );
+    
+    var web = new Web(
+        new FrontWebAppConfiguration()
+        {
+            ResourceGroup = resourceGroup.ResourceGroupData,
+            PlanFront = frontPlan,
+            ContainerRegistry = containerRegistry,
+            ProjectName = projectName,
+            Environment = environment
+        }
+        );
+    
+    
     var roleAssignement = new RoleAssignement( containerRegistry , api , web );
-    var acrApiWebhook = new AcrApiWebhook(api, resourceGroup, containerRegistry, location, projectName, environment);
-    var acrFrontWebhook = new AcrFrontWebhook(web, resourceGroup, containerRegistry, location, projectName, environment);
-    var appRegistration = new AppRegistration(projectName, environment, web);
+    
+    var acrApiWebhook = new AcrApiWebhook(
+        new AcrApiWebhookConfiguration()
+        {
+            Api = api,
+            ContainerRegistry = containerRegistry,
+            ResourceGroup = resourceGroup,
+            ProjectName = projectName,
+            Environment = environment,
+            Location = location
+        }
+        );
+   
+    
+    var acrFrontWebhook = new AcrFrontWebhook(
+        new AcrFrontWebhookConfiguration()
+        {
+            Web = web,
+            ContainerRegistry = containerRegistry,
+            ResourceGroup = resourceGroup,
+            ProjectName = projectName,
+            Environment = environment,
+            Location = location
+        }
+        );
+    
+    var appRegistration = new AppRegistration(
+        new AppRegistrationConfiguration()
+        {
+            ProjectName = projectName,
+            Environment = environment,
+            Web = web 
+        }
+        );
 });
 
 
