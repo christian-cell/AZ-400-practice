@@ -27,9 +27,10 @@ namespace Users.Functions.Infra.Resources
                     ResourceGroupName = resourceGroup.ResourceGroupData.Name,
                     Sku = new SkuDescriptionArgs
                     {
-                        Name = "Y1", 
-                        Tier = "Dynamic"
+                        Name = "EP1", 
+                        Tier = "ElasticPremium", 
                     },
+                    Reserved = true, 
                     Name = $"{functionName}-serviceplan"
                 }
             );
@@ -40,9 +41,10 @@ namespace Users.Functions.Infra.Resources
                 Name = functionName,
                 ResourceGroupName = resourceGroup.ResourceGroupData.Name,
                 ServerFarmId = appServicePlan.Id,
-                Kind = "functionapp",
+                Kind = "functionapp,linux", 
                 SiteConfig = new SiteConfigArgs
                 {
+                    LinuxFxVersion = "DOTNET-ISOLATED|8.0", 
                     AppSettings = appSettings?.Select(kvp => new NameValuePairArgs
                     {
                         Name = kvp.Key,
@@ -50,6 +52,7 @@ namespace Users.Functions.Infra.Resources
                     }).ToArray()!
                 }
             });
+
         }
     }
 }

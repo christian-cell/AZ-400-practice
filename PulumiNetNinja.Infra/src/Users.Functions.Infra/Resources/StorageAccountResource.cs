@@ -10,6 +10,8 @@ namespace Users.Functions.Infra.Resources
         public StorageAccount StorageAccount { get; }
         public Output<string> PrimaryStorageKey { get; }
 
+        public Output<string> ConnectionString { get; }
+
         public StorageAccountResource(string accountName, ResourceGroup resourceGroup, string environment)
         {
             Console.WriteLine($"Creating Storage Account {accountName}");
@@ -36,6 +38,15 @@ namespace Users.Functions.Infra.Resources
             {
                 var firstKey = accountKeys.Keys[0].Value;
                 return Output.CreateSecret(firstKey);
+            });
+
+            // 🧩 Construir connection string
+            ConnectionString = Output.Tuple(StorageAccount.Name, PrimaryStorageKey).Apply(items =>
+            {
+                var name = items.Item1;
+                var key = items.Item2;
+                var connStr = $"DefaultEndpointsProtocol=https;AccountName={name};AccountKey={key};EndpointSuffix=core.windows.net";
+                return Output.CreateSecret(connStr);
             });
         }
     }

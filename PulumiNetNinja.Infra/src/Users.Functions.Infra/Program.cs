@@ -90,10 +90,11 @@ return await Pulumi.Deployment.RunAsync(() =>
         resourceGroup: resourceGroup,
         appSettings: new Dictionary<string, Output<string>>
         {
-            { "AzureWebJobsStorage", storageAccountKey }, 
-            { "FUNCTIONS_WORKER_RUNTIME", Output.Create(functionAppConfig.Runtime) },
+            { "AzureWebJobsStorage", storageAccount.ConnectionString },
+            { "FUNCTIONS_WORKER_RUNTIME", Output.Create("dotnet-isolated") },
             { "FUNCTIONS_EXTENSION_VERSION", Output.Create("~4") },
-            { "APPINSIGHTS_INSTRUMENTATIONKEY", appInsights.InstrumentationKey }, 
+            { "WEBSITE_RUN_FROM_PACKAGE", Output.Create("1") },
+            { "APPINSIGHTS_INSTRUMENTATIONKEY", appInsights.InstrumentationKey },
             { "SQL_CONNECTION_STRING", sqlConnectionString } 
         }
         /* TODO */
