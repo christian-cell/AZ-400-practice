@@ -110,6 +110,9 @@ return await Pulumi.Deployment.RunAsync(() =>
         ["appInsightsInstrumentationKey"] = appInsights.InstrumentationKey,
         ["adminUsername"] = sqlServerConfig.AdminUsername
     };
+    
+    /*Create the static web app*/
+    var staticWebAppData = new StaticWebApp(resourceGroup, location);
 
     SaveFinalConfiguration(outputs);
 
