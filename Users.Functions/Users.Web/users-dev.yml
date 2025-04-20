@@ -1,0 +1,56 @@
+trigger:
+  branches:
+    include:
+      - development  
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+- group: users-web-dev 
+
+steps:
+- task: NodeTool@0 
+  inputs:
+    versionSpec: '20.x'
+  displayName: 'Install Node.js 20.x'
+
+- script: |
+    npm install -g @angular/cli 
+    npm install
+    ng build --configuration=development  
+    ls -alh dist
+  displayName: '⚙️ npm install and build'
+  workingDirectory: 'users'  
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'users/dist/users'
+    ArtifactName: 'dev'
+    publishLocation: 'Container'
+
+- script: |
+    ls -alh   
+  displayName: 'List files in root directory'
+
+- script: |
+    ls -alh users
+  displayName: 'List files in users'
+
+- script: |
+    ls -alh users/dist/users  
+  displayName: 'List files in users/dist/users'
+
+- script: |
+    ls -alh users/dist/users/browser  
+  displayName: 'List files in users/dist/users/browser'
+
+- task: AzureStaticWebApp@0
+  inputs:
+    azureSubscription: $(azureSubscription)
+    app_location: 'users/dist/users/browser'
+    skip_app_build: true
+    verbose: true 
+  env:
+    azure_static_web_apps_api_token: $(PLAYER-WEB-DEPLOYMENT-TOKEN)
+  displayName: '🚀 Deploy to Azure Static Web App'
