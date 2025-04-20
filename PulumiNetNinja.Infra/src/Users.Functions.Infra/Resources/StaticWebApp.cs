@@ -18,14 +18,14 @@ namespace Users.Functions.Infra.Resources
             var staticSite = new StaticSite("my-static-app", new StaticSiteArgs
             {
                 ResourceGroupName = resourceGroup.ResourceGroupData.Name,
-                Location = location,
+                Location = "westeurope",
                 Sku = new SkuDescriptionArgs
                 {
                     Name = "Free",
                     Tier = "Free",
                 },
-                RepositoryUrl = "https://github.com/tu-usuario/tu-repo",
-                Branch = "main",
+                RepositoryUrl = "https://github.com/christian-cell/AZ-400-practice",
+                Branch = "master",
                 BuildProperties = new StaticSiteBuildPropertiesArgs
                 {
                     AppLocation = "/",
@@ -36,7 +36,8 @@ namespace Users.Functions.Infra.Resources
             var dnsZone = new Zone("users-functions-dev.com", new ZoneArgs
             {
                 ResourceGroupName = resourceGroup.ResourceGroupData.Name,
-                ZoneName = "users-functions-dev.com"
+                ZoneName = "users-functions-dev.com",
+                Location = "global"
             });
 
             var cnameRecord = new RecordSet("static-site-cname", new RecordSetArgs
